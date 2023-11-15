@@ -11,5 +11,5 @@
 #include <sys/types.h>
 #include <errno.h>
 void execmd(char **argv);
-char *get_location(char *command);
+char *get_path(char *command);
 #endif
