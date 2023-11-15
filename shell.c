@@ -1,87 +1,55 @@
 #include "main.h"
-void shell(char **argv, char **env);
-/**
- * shell - creat a simple shell.
- * @argv: arguments
- * @env: environment
- * Return: the command line arguments
-*/
+void shell(char **env) {
+    char *command = NULL;
+    size_t n = 0;
 
-void shell(char **argv, char **env)
-{
-	pid_t proc_id;
-	char *command = NULL, *string, *prompt = "$ ";
-	size_t n = 0;
-	ssize_t char_num;
-	int i, j, status;
+    while (1) {
+        if (isatty(STDIN_FILENO))
+            printf("$ "); // Display prompt if input is from a terminal
 
-	argv[0] = NULL;
-	argv[1] = NULL;
-	while (1)
-	{
-	if (isatty(STDIN_FILENO))/*isatty adde */
-		printf("%s", prompt);/*printing prompt*/
+        if (getline(&command, &n, stdin) == -1) {
+            free(command);
+            exit(EXIT_FAILURE);
+        }
 
-	char_num = getline(&command, &n, stdin);/*getting command*/
-	if (char_num == -1)
-	{
-		free(command);
-		exit(EXIT_FAILURE);
-	}
-/*allocate space for string*/
+        // Remove newline character from command
+        command[strcspn(command, "\n")] = '\0';
 
-	string = malloc(sizeof(char) * (char_num));
-	if (string == NULL)
-		exit(EXIT_FAILURE);
+        char *argv[MAX_COMMAND_LENGTH] = { NULL }; // Command arguments array
+        int argc = 0;
 
-/*deleting the NULL operator*/
-	i = 0;/*reseeting i to zero after every excetuon*/
+        // Tokenize command into arguments
+        char *token = strtok(command, " ");
+        while (token != NULL && argc < MAX_COMMAND_LENGTH - 1) {
+            argv[argc++] = token;
+            token = strtok(NULL, " ");
+        }
+        argv[argc] = NULL; // Set the last argument to NULL
 
-	while (command[i] != '\0')
-	{
-		string[i - 1] = command[i - 1];
-		i++;
-	}
-	string[i] = '\0';
-	j = 0;
-	argv[j] = strtok(string, " ");
+        char *final_command = get_location(argv[0]);
 
-	while (argv[j])/* setting values of argv[]*/
-	{
-	argv[j + 1] = strtok(NULL, " ");
-	 ++j;
-	}
-/*final_command = get_location(argv[0]);*/
-/*fork must not be called if command doeasn't found*/
+        if (final_command != NULL) {
+            pid_t proc_id = fork();
 
-	/**
-	 * creating a child proceess to make
-	 * my shell print $ after the excution
-	 */
-	proc_id = fork();
+            if (proc_id == -1) {
+                free(command);
+                free(final_command);
+                exit(EXIT_FAILURE);
+            }
 
-	if (proc_id == -1)
-	{
-		free(string);
-		free(command);
-		/*free(final_command);*/
-		exit(EXIT_FAILURE);
-	}
+            if (proc_id == 0) { // Child process
+                execve(final_command, argv, env);
+                perror("execve"); // If execve fails, print error
+                exit(EXIT_FAILURE);
+            } else { // Parent process
+                wait(NULL); // Wait for child process to finish
+            }
 
-	if (proc_id == 0)
-	{
-	execve(argv[0], argv, env);
-	printf("%s :no such file or directory\n", argv[0]);
-	}
+            free(final_command);
+        } else {
+            printf("%s: command not found\n", argv[0]);
+        }
+    }
 
-	else
-	wait(&status);
-	} /*end of wile loop*/
-/* Handle error as needed */
-
-	/*freeing*/
-	free(string);
-	free(argv);
-	free(command);
-/*	free(final_command);*/
+    free(command);
 }

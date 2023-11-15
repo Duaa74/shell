@@ -1,6 +1,8 @@
 #include "main.h"
 /**
- *
+ * get_location - finding command path
+ * @command: command path to be found
+ * Return: pointer to path
  */
 char *get_location(char *command)
 {
@@ -16,7 +18,7 @@ char *get_location(char *command)
 		location_cp = strdup(location);
 		location_token = strtok(location_cp, ":");
 	
-		while(location_cp != NULL)
+		while(location_token != NULL)
 		{
 			dr_lenght = strlen(location_token);
 			location_path = malloc(lenght + dr_lenght + 2);
@@ -30,24 +32,19 @@ char *get_location(char *command)
 				free(location_cp);
 				return (location_path);
 			}
-			else
-			{
+			
 				free(location_path);
 				location_token = strtok(NULL, ":");
 			}
-		}/*loop end*/
-		free(location_cp);
+		/*loop end*/
 
+free(location_cp);
+	}
        if (stat(command, &buf) == 0)
         {
-            return (command);
+            return strdup(command);
         }
 
 
-        return (command);
-
-    }
-
-
-    return (command);
+    return (NULL);
 }
