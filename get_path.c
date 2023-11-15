@@ -15,6 +15,7 @@ char *get_location(char *command)
 		lenght = strlen(command);
 		location_cp = strdup(location);
 		location_token = strtok(location_cp, ":");
+	
 		while(location_cp != NULL)
 		{
 			dr_lenght = strlen(location_token);
@@ -23,29 +24,30 @@ char *get_location(char *command)
 			strcat(location_path, "/");
 		       	strcat(location_path, command);
 		       	strcat(location_path, "\0");
-			if(stat(locatio_path, buf) == 0)
+	
+			if(stat(location_path, &buf) == 0)
 			{
-				free(locatio_cp);
+				free(location_cp);
 				return (location_path);
 			}
 			else
 			{
-				free(locatio_path);
+				free(location_path);
 				location_token = strtok(NULL, ":");
 			}
 		}/*loop end*/
-		free(path_copy);
+		free(location_cp);
 
-        if (stat(command, &buffer) == 0)
+       if (stat(command, &buf) == 0)
         {
             return (command);
         }
 
 
-        return (NULL);
+        return (command);
 
     }
 
 
-    return (NULL);
+    return (command);
 }

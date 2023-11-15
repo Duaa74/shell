@@ -1,18 +1,5 @@
 #include "main.h"
-#include <sys/types.h>
-#include <unistd.h>
-
-void task1(char **argv, char **env);
-
-int main(int ac, char **argv, char **env)
-{
-if (ac <= 12) /* changed from 1 to 12*/
-task1(argv,env);
-
-    return (0);
-}
-
-void task1(char *argv[], char **env)
+void shell(char **argv, char **env)
 {
 /*setting variable*/
 pid_t proc_id;
@@ -32,7 +19,6 @@ while(1)
 	printf("%s", prompt);/*printing prompt*/
 
 	char_num = getline(&command, &n, stdin);/*getting command*/
-	
 	if (char_num == -1)
 	{
 		free(command);
@@ -62,6 +48,7 @@ j = 0;
 	   argv[j+1] = strtok(NULL," ");
 	   ++j;
    }
+/*   final_command = get_location(argv[0]);*/
 /*fork must not be called if command doeasn't found*/
    
 	/*creating a child proceess to make 
@@ -72,13 +59,14 @@ j = 0;
    	 {
 	    free(string);
 	    free(command);
+/*	    free(final_command);*/
 	    exit(EXIT_FAILURE);
 	    }
 
 	if (proc_id == 0)
 	{	
 	execve(argv[0], argv, env);
-    	printf("%s :no such file or directory\n",argv[1]);
+    	printf("%s :no such file or directory\n", argv[0]);
 	}
 	
 	else
@@ -90,4 +78,5 @@ j = 0;
 	free(string);
 	free(argv);
 	free(command);
+/*	free(final_command);*/
 }

@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <errno.h>
-void execmd(char **argv);
-char *get_path(char *command);
+void shell(char **argv, char **env);
+char *get_location(char *command);
+
 #endif
